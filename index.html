@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>실시간 시계</title>
+  <style>
+    @font-face {
+      font-family: 'FifteenTwenty';
+      src: url('./fonts/FifteenTwenty-Oblique 2.woff') format('woff');
+      font-weight: normal;
+      font-style: oblique;
+    }
+
+    :root {
+      --bg: #0b0c10;
+      --fg: blue; /* 파란색 시계 글자 */
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff;
+        --fg: blue;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'FifteenTwenty', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #clock {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+      font-weight: 400;
+      font-size: clamp(64px, 10vw + 1rem, 200px);
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4ch;
+      white-space: nowrap;
+      user-select: none;
+      color: var(--fg);
+    }
+  </style>
+</head>
+<body>
+  <h1 id="clock" aria-live="polite" aria-atomic="true"></h1>
+
+  <script>
+    const TIME_ZONE = "Asia/Seoul";
+    const LOCALE = "ko-KR";
+    const $clock = document.getElementById("clock");
+
+    const timeFmt = new Intl.DateTimeFormat(LOCALE, {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: TIME_ZONE
+    });
+
+    function render(now = new Date()) {
+      const parts = timeFmt.formatToParts(now);
+      const hh = parts.find(p => p.type === "hour").value;
+      const mm = parts.find(p => p.type === "minute").value;
+      const ss = parts.find(p => p.type === "second").value;
+      $clock.textContent = `${hh}:${mm}:${ss}`;
+    }
+
+    function tick() {
+      const now = new Date();
+      render(now);
+      const delay = 1000 - now.getMilliseconds();
+      setTimeout(tick, delay);
+    }
+
+    render();
+    tick();
+  </script>
+</body>
+</html>
